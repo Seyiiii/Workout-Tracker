@@ -1,12 +1,23 @@
 import { useState, useEffect } from 'react';
-import { Routes, Route, Link } from 'react-router-dom';
-import History from './components/History';
+import { Routes, Route, Link, useNavigate } from 'react-router-dom';
+import { Menu, Dumbbell, History as HistoryIcon, LogOut, LogIn, UserPlus } from 'lucide-react';
+
 import WorkoutForm from './components/WorkoutForm';
 import WorkoutList from './components/WorkoutList';
+import History from './components/History';
+import Login from './components/Login';
+import Signup from './components/Signup'; // Fixed 'Signp' typo
 import './App.css'; 
 
-
 function App() {
+
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    return localStorage.getItem('is-logged-in') === 'true';
+  });
+
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const navigate = useNavigate();
+
   const [workouts, setWorkouts] = useState(() => {
     const savedWorkouts = localStorage.getItem('my-workouts');
 
@@ -24,14 +35,12 @@ function App() {
   const [newSets, setNewSets] = useState('');
   const [newReps, setNewReps] = useState('');
   
-  // 1. New State to track if we are in "Edit Mode"
   const [editingId, setEditingId] = useState(null);
 
   useEffect(() => {
     localStorage.setItem('my-workouts', JSON.stringify(workouts));
   }, [workouts]);
 
-  // 2. Modified Submit Handler (Handles BOTH Create and Update)
   const handleSubmit = (e) => {
     e.preventDefault(); 
     if (!newExercise || !newSets || !newReps) {
@@ -40,25 +49,22 @@ function App() {
     }
 
     if (editingId !== null) {
-      // --- UPDATE LOGIC ---
-      // Map through workouts. If the ID matches, replace it with the new data.
       const updatedWorkouts = workouts.map((workout) => {
         if (workout.id === editingId) {
           return {
-            ...workout, // Keep the old ID
+            ...workout,
             exercise: newExercise,
             sets: parseInt(newSets),
             reps: parseInt(newReps),
           };
         }
-        return workout; // Otherwise, return the unchanged workout
+        return workout; 
       });
 
       setWorkouts(updatedWorkouts);
-      setEditingId(null); // Turn off edit mode
+      setEditingId(null); 
 
     } else {
-      // --- CREATE LOGIC (Your exact old code) ---
       const newWorkout = {
         id: Date.now(), 
         exercise: newExercise,
@@ -68,15 +74,13 @@ function App() {
       setWorkouts([...workouts, newWorkout]);
     }
 
-    // Clear the form fields after either creating or updating
     setNewExercise('');
     setNewSets('');
     setNewReps('');
   };
 
-  // 3. New Function to populate the form when "Edit" is clicked
   const handleEditClick = (workout) => {
-    setEditingId(workout.id); // Turn ON edit mode for this specific ID
+    setEditingId(workout.id); 
     setNewExercise(workout.exercise);
     setNewSets(workout.sets);
     setNewReps(workout.reps);
@@ -87,43 +91,106 @@ function App() {
     setWorkouts(updatedWorkouts);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('is-logged-in');
+    setIsLoggedIn(false);
+    navigate('/login');
+  };
+
   return (
-    <div className="app-container">
+    <div className="app-layout">
 
-      <nav style={{display: 'flex', gap: '20px', justifyContent: 'center', marginBottom: '20px'}}>
-        <Link to="/" style={{textDecoration: 'none', fontWeight: 'bold', color: '#3b82f6'}}>
-        Today's Workout
-        </Link>
-        <Link to="/history" style={{ textDecoration: 'none', fontWeight: 'bold', color: '#3b82f6' }}>
-          My History
-        </Link>
-      </nav>
+      {/* Fixed: aside tag wraps the entire sidebar, fixed 'expaned' typo */}
+      <aside className={`sidebar ${isSidebarOpen ? 'expanded' : 'collapsed'}`}>
+        
+        {/* Fixed: 'manu-btn' typo */}
+        <button className="menu-btn" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
+          <Menu size={24} />
+        </button>
 
-      <h1>My Workout Tracker</h1>
-
-      <Routes>
-        <Route path='/' element={
-          <>
-
-            <WorkoutForm
-              newExercise={newExercise} setNewExercise={setNewExercise}
-              newSets={newSets} setNewSets={setNewSets}
-              newReps={newReps} setNewReps={setNewReps}
-              edittingId={editingId} onSubmit={handleSubmit}
-            />
+        {/* Fixed: Removed duplicated nav-links div and duplicated isLoggedIn checks */}
+        <div className="nav-links">
+          {isLoggedIn ? (
+            <>
+              <Link to="/" className="nav-item">
+                <span className="nav-icon"><Dumbbell size={24} /></span>
+                {isSidebarOpen && <span className="nav-text">Today's Workout</span>}
+              </Link>
               
-            <WorkoutList
-              workouts={workouts}
-              onEditClick={handleEditClick}
-              onDeleteWorkout={handleDeleteWorkout}
-            />
-          </>
-        } />
+              <Link to="/history" className="nav-item">
+                <span className="nav-icon"><HistoryIcon size={24} /></span>
+                {isSidebarOpen && <span className="nav-text">My History</span>}
+              </Link>
+              
+              <button onClick={handleLogout} className="nav-item">
+                <span className="nav-icon"><LogOut size={24} color="#ef4444" /></span>
+                {isSidebarOpen && <span className="nav-text" style={{ color: '#ef4444' }}>Logout</span>}
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" className="nav-item">
+                <span className="nav-icon"><LogIn size={24} /></span>
+                {isSidebarOpen && <span className="nav-text">Log In</span>}
+              </Link>
+              
+              <Link to="/signup" className="nav-item">
+                <span className="nav-icon"><UserPlus size={24} /></span>
+                {isSidebarOpen && <span className="nav-text">Sign Up</span>}
+              </Link>
+            </>
+          )}
+        </div>
+      </aside>
 
-        <Route path='/history' element={
-         <History workouts={workouts} />
-        } />
-      </Routes>
+      <main className="main-content">
+        <div className="app-container">
+          <h1>My Workout Tracker</h1>
+
+          <Routes>
+            <Route path='/' element={
+              isLoggedIn ? (
+                <>
+                  <WorkoutForm
+                    newExercise={newExercise} setNewExercise={setNewExercise}
+                    newSets={newSets} setNewSets={setNewSets}
+                    newReps={newReps} setNewReps={setNewReps}
+                    editingId={editingId} onSubmit={handleSubmit} /* Fixed 'edittingId' typo */
+                  />
+                    
+                  <WorkoutList
+                    workouts={workouts}
+                    onEditClick={handleEditClick}
+                    onDeleteWorkout={handleDeleteWorkout}
+                  />
+                </>
+              ) : (
+                <div style={{ textAlign: 'center', padding: '2rem' }}>
+                  <p>Please log in to view your workouts.</p>
+                </div>
+              )
+            } />
+
+            <Route path='/history' element={
+              isLoggedIn ? (
+                <History workouts={workouts} />
+              ) : (
+                <div style={{ textAlign: 'center', padding: '2rem' }}>
+                  <p>Please log in to view your history.</p>
+                </div>
+              )
+            } />
+
+            <Route path="/login" element={
+              <Login setIsLoggedIn={setIsLoggedIn} />
+            } />
+
+            <Route path="/signup" element={
+              <Signup setIsLoggedIn={setIsLoggedIn} />
+            } />
+          </Routes>
+        </div>
+      </main> 
     </div>
   );
 }

@@ -2,10 +2,75 @@ body {
   font-family: system-ui, -apple-system, sans-serif;
   background-color: #f3f4f6;
   color: #1f2937;
+  padding: 0;
+  margin: 0;
+}
+
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  background-color: #1f2937;
+  color: white;
+  transition: width 0.2s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  padding-top: 20px;
+}
+
+.sidebar.expanded {
+  width: 220px;
+}
+
+.sidebar.collapsed {
+  width: 70px;
+}
+
+.menu-btn {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 0, 23px;
+  margin-bottom: 30px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  padding: 15px 23px;
+  color: #9ca3af;
+  text-decoration: none;
+  border: none;
+  background: none;
+  width: 100%;
+  cursor: pointer;
+  font-size: 1rem;
+  transform: background-color 0.2s, color 0.2s;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.nav-icon {
+  min-width: 30px;
+  display: flex;
+}
+
+.nav-text {
+  margin-left: 15px;
+}
+
+.main-content {
+  flex: 1; 
+  padding: 2rem;
   display: flex;
   justify-content: center;
-  padding: 2rem;
-  margin: 0;
+  align-items: flex-start;
+  overflow-y: auto;
 }
 
 .app-container {
@@ -13,7 +78,7 @@ body {
   padding: 2rem;
   border-radius: 12px;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  width: 100;
+  width: 100%;
   max-width: 500px;
 }
 
