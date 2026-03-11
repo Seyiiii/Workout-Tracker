@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
+import { Routes, Route, Link } from 'react-router-dom';
+import History from './components/History';
 import WorkoutForm from './components/WorkoutForm';
 import WorkoutList from './components/WorkoutList';
 import './App.css'; 
+
 
 function App() {
   const [workouts, setWorkouts] = useState(() => {
@@ -86,20 +89,41 @@ function App() {
 
   return (
     <div className="app-container">
+
+      <nav style={{display: 'flex', gap: '20px', justifyContent: 'center', marginBottom: '20px'}}>
+        <Link to="/" style={{textDecoration: 'none', fontWeight: 'bold', color: '#3b82f6'}}>
+        Today's Workout
+        </Link>
+        <Link to="/history" style={{ textDecoration: 'none', fontWeight: 'bold', color: '#3b82f6' }}>
+          My History
+        </Link>
+      </nav>
+
       <h1>My Workout Tracker</h1>
 
-     <WorkoutForm
-      newExercise={newExercise} setNewExercise={setNewExercise}
-      newSets={newSets} setNewSets={setNewSets}
-      newReps={newReps} setNewReps={setNewReps}
-      edittingId={editingId} onSubmit={handleSubmit}
-      />
-      
-      <WorkoutList
-        workouts={workouts}
-        onEditClick={handleEditClick}
-        onDeleteWorkout={handleDeleteWorkout}
-        />
+      <Routes>
+        <Route path='/' element={
+          <>
+
+            <WorkoutForm
+              newExercise={newExercise} setNewExercise={setNewExercise}
+              newSets={newSets} setNewSets={setNewSets}
+              newReps={newReps} setNewReps={setNewReps}
+              edittingId={editingId} onSubmit={handleSubmit}
+            />
+              
+            <WorkoutList
+              workouts={workouts}
+              onEditClick={handleEditClick}
+              onDeleteWorkout={handleDeleteWorkout}
+            />
+          </>
+        } />
+
+        <Route path='/history' element={
+         <History workouts={workouts} />
+        } />
+      </Routes>
     </div>
   );
 }
