@@ -1,6 +1,11 @@
+import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import App from './App.jsx'
+import './index.css'
 
 
 createRoot(document.getElementById('sandy')).render(
-  <p>Welcome!</p>
+  <StrictMode>
+    <App />
+  </StrictMode>
 )
