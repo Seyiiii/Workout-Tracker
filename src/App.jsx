@@ -1,11 +1,21 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import WorkoutForm from './components/WorkoutForm';
+import WorkoutList from './components/WorkoutList';
 import './App.css'; 
 
 function App() {
-  const [workouts, setWorkouts] = useState([
-    { id: 1, exercise: 'Squats', sets: 3, reps: 10 },
-    { id: 2, exercise: 'Push-ups', sets: 3, reps: 15 },
-  ]);
+  const [workouts, setWorkouts] = useState(() => {
+    const savedWorkouts = localStorage.getItem('my-workouts');
+
+    if (savedWorkouts) {
+      return JSON.parse(savedWorkouts);
+    } else {
+      return [
+        { id: 1, exercise: 'Squats', sets: 3, reps: 10 },
+        { id: 2, exercise: 'Push-ups', sets: 3, reps: 15 },
+      ];
+    }
+  });
 
   const [newExercise, setNewExercise] = useState('');
   const [newSets, setNewSets] = useState('');
@@ -13,6 +23,10 @@ function App() {
   
   // 1. New State to track if we are in "Edit Mode"
   const [editingId, setEditingId] = useState(null);
+
+  useEffect(() => {
+    localStorage.setItem('my-workouts', JSON.stringify(workouts));
+  }, [workouts]);
 
   // 2. Modified Submit Handler (Handles BOTH Create and Update)
   const handleSubmit = (e) => {
@@ -74,57 +88,18 @@ function App() {
     <div className="app-container">
       <h1>My Workout Tracker</h1>
 
-      {/* Notice we changed onSubmit to our new handleSubmit function */}
-      <form onSubmit={handleSubmit} className="workout-form">
-        <input 
-          type="text" 
-          placeholder="Exercise" 
-          value={newExercise}
-          onChange={(e) => setNewExercise(e.target.value)}
+     <WorkoutForm
+      newExercise={newExercise} setNewExercise={setNewExercise}
+      newSets={newSets} setNewSets={setNewSets}
+      newReps={newReps} setNewReps={setNewReps}
+      edittingId={editingId} onSubmit={handleSubmit}
+      />
+      
+      <WorkoutList
+        workouts={workouts}
+        onEditClick={handleEditClick}
+        onDeleteWorkout={handleDeleteWorkout}
         />
-        <input 
-          type="number" 
-          placeholder="Sets" 
-          value={newSets}
-          onChange={(e) => setNewSets(e.target.value)}
-        />
-        <input 
-          type="number" 
-          placeholder="Reps" 
-          value={newReps}
-          onChange={(e) => setNewReps(e.target.value)}
-        />
-        {/* The button text changes dynamically based on whether editingId is null or not */}
-        <button type="submit">
-          {editingId ? "Update Workout" : "Add Workout"}
-        </button>
-      </form>
-
-      <div className="workout-list">
-        <h2>Today's Plan</h2>
-        <ul>
-          {workouts.map((workout) => (
-            <li key={workout.id}>
-              <strong>{workout.exercise}</strong>: {workout.sets} sets of {workout.reps} reps
-              
-              {/* 4. The New Edit Button */}
-              <button 
-                onClick={() => handleEditClick(workout)}
-                style={{ marginLeft: '10px', color: 'blue' }}
-              >
-                Edit
-              </button>
-
-              <button 
-                onClick={() => handleDeleteWorkout(workout.id)}
-                style={{ marginLeft: '10px', color: 'red' }}
-              >
-                Delete
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
     </div>
   );
 }
