@@ -30,6 +30,13 @@ function App() {
     setNewExercise('');
     setNewSets('');
     setNewReps('');
+
+    const handleDeleteWorkout = (idToRemove) => {
+      const updatedWorkouts = workouts.filter((workout) => workout.id !== idToRemove);
+
+      setWorkouts(updatedWorkouts);
+    };
+
   };
 
   return (
@@ -70,6 +77,23 @@ function App() {
         </ul>
       </div>
 
+        <div className='workout-List'>
+          <h2>Todays's Plan</h2>
+          <ul>
+            {workouts.map((workout) => (
+              <li key={workout.id}>
+                <strong>{workout.exercise}</strong>: {workout.sets} sets of {workout.reps} reps
+
+                <button
+                onClick={() => handleDeleteWorkout(workout.id)}
+                className='delete-btn'
+                >
+                  Delete
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
     </div>
   );
 
